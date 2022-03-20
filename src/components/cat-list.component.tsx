@@ -12,7 +12,7 @@ import Alert from '@mui/material/Alert';
 import { Breed, Cat } from '../models/cat';
 
 export default function CatListComponent() {
-  const itemsToLoad = 10;
+  const ITEMS_TO_LOAD = 10;
 
   const [breeds, setBreed] = useState([] as Breed[]);
   const [cats, setCats] = useState([] as Cat[]);
@@ -62,7 +62,7 @@ export default function CatListComponent() {
   const loadCats = () => {
     setCanLoadMore(false);
 
-    getCatByBreed(currPage, itemsToLoad, selBreed).then((response: AxiosResponse<any>) => {
+    getCatByBreed(currPage, ITEMS_TO_LOAD, selBreed).then((response: AxiosResponse<any>) => {
       setHasError(false);
 
       setCurrPage(currPage + 1);
@@ -76,7 +76,7 @@ export default function CatListComponent() {
           ...newCats
         ]);
 
-      if(newCats.length > 0 && pageLimit > itemsToLoad) {
+      if(newCats.length > 0 && pageLimit > ITEMS_TO_LOAD) {
         setCanLoadMore(true);
       }
 

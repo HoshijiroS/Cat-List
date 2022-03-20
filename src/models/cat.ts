@@ -29,3 +29,5 @@ export interface CatDetail {
     url: string;
     breeds: BreedDetail[];
 }
+
+export const ATTRS = ["Hairless", "Natural", "Rare", "Suppressed Tail", "Short Legs", "Hypoallergenic"];
