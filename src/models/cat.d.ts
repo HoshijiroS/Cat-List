@@ -20,6 +20,8 @@ export interface BreedDetail {
     short_legs: number;
     adaptability: number;
     hairless: number;
+    origin: string;
+    temperament: string;
 }
   
 export interface CatDetail {

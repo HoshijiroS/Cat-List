@@ -79,6 +79,12 @@ export default function CatComponent() {
               {catDetails.breeds[0].name}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{marginTop: 3}}>
+              {`Origin: ${catDetails.breeds[0].origin}`}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{marginTop: 3}}>
+              {`Temperament: ${catDetails.breeds[0].temperament}`}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{marginTop: 3}}>
               {catDetails.breeds[0].description}
             </Typography>
             {renderAttributes(catDetails.breeds[0])}
