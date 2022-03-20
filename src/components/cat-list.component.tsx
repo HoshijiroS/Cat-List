@@ -3,7 +3,7 @@ import { ChangeEvent, useState, useEffect } from "react";
 import { AxiosResponse } from "axios";
 import { getCatByBreed, getBreeds } from "../service/cat.service";
 import FormControl from '@mui/material/FormControl';
-import { Button, Container, IconButton, ImageListItemBar, InputLabel, NativeSelect } from "@mui/material";
+import { Button, Container, IconButton, ImageListItemBar, InputLabel, MenuItem, NativeSelect, Select, SelectChangeEvent } from "@mui/material";
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import OpenInFullRoundedIcon from '@mui/icons-material/OpenInFullRounded';
@@ -38,19 +38,21 @@ export default function CatListComponent() {
   }, []);
 
   useEffect(() => {
-    if (selBreed) loadCats();
+    if (selBreed) {
+      loadCats();
+    }
   }, [selBreed]);
 
   const renderOption = (opt: Breed) => {
     return (
-    <option 
+    <MenuItem 
       key = {opt.id} 
       value={opt.id}>
         {opt.name}
-    </option>);
+    </MenuItem>);
   }
 
-  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (e: SelectChangeEvent<string>) => {
     setCats([]);
     setSelectedBreed(e.target.value);
     setCurrPage(0);
@@ -86,7 +88,7 @@ export default function CatListComponent() {
 
   const renderCatList = () => {
     return (
-      <Container maxWidth="lg" sx = {{margin: "20px 0px",}}>
+      <Container fixed sx = {{margin: "20px 0px"}}>
         <ImageList cols={3}>
           {cats.map((cat: Cat) => (
             <ImageListItem key={cat.url}>
@@ -135,20 +137,18 @@ export default function CatListComponent() {
 
   const renderSearch = () => {
     return (
-      <Container sx = {{margin: "30px 0px"}}>
-          <FormControl fullWidth><InputLabel variant="standard" htmlFor="select-input">
+      <Container fixed sx = {{margin: "30px 0px"}}>
+          <FormControl variant="standard" fullWidth><InputLabel id="select-input-label">
             Select a cat breed below!
           </InputLabel>
-            <NativeSelect
+            <Select
+              labelId="select-input-label"
+              id="simple-select"
               defaultValue={breeds[0].id}
-              inputProps={{
-                name: 'breed',
-                id: 'select-input',
-              }}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e)}
+              onChange={(e: SelectChangeEvent<string>) => handleChange(e)} 
             >
               {breeds.map(breed => renderOption(breed))}
-            </NativeSelect>
+            </Select>
           </FormControl>
       </Container>
     );
@@ -156,14 +156,14 @@ export default function CatListComponent() {
 
   const renderLoading = () => {
     return (
-      <div style={{display: 'flex', justifyContent: 'center', height: '100vh'}}>
+      <div style={{display: 'flex', justifyContent: 'center'}}>
         <CircularProgress disableShrink />
       </div>
     );
   }
 
   return (<React.Fragment>
-    <Container maxWidth="lg">
+    <Container fixed>
       {hasError ? <Alert sx={{ margin: "10px 0px" }} severity="error">{error}</Alert> : null}
       {breeds.length > 0 ? renderSearch() : renderLoading()}
       {cats.length > 0 ? renderCatList() : renderLoading()}
