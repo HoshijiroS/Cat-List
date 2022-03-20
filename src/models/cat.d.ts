@@ -9,3 +9,21 @@ export interface Cat {
     url: string;
     description: string;
 }
+
+export interface BreedDetail {
+    id: string;
+    name: string;
+    description: string;
+    natural: number;
+    rare: number;
+    suppressed_tail: number;
+    short_legs: number;
+    adaptability: number;
+    hairless: number;
+}
+  
+  export interface CatDetail {
+    id: string;
+    url: string;
+    breeds: BreedDetail[];
+}

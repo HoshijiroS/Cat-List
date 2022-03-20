@@ -26,6 +26,8 @@ export default function CatListComponent() {
     async function fetchBreeds() {
       getBreeds().then((response: AxiosResponse<any>) => {
         setBreed(response.data);
+
+        setSelectedBreed(response.data[0].id);
       }).catch((e: Error) => {
         console.log(e);
       });
@@ -83,7 +85,7 @@ export default function CatListComponent() {
 
   const renderCatList = () => {
     return (
-      <Container maxWidth="lg" sx = {{margin: 0}}>
+      <Container maxWidth="lg" sx = {{margin: "20px 0px",}}>
         <ImageList cols={3}>
           {cats.map((cat: Cat) => (
             <ImageListItem key={cat.url}>
@@ -105,7 +107,7 @@ export default function CatListComponent() {
                   <IconButton
                     sx={{ color: 'white' }}
                     aria-label={`view`}
-                    href={`/cat:${cat.id}`}
+                    href={`/cats:${cat.id}`}
                   >
                     <OpenInFullRoundedIcon />
                   </IconButton>
@@ -153,7 +155,9 @@ export default function CatListComponent() {
 
   const renderLoading = () => {
     return (
-      <CircularProgress disableShrink />
+      <div style={{display: 'flex', justifyContent: 'center', height: '100vh'}}>
+        <CircularProgress disableShrink />
+      </div>
     );
   }
 
