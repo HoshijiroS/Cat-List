@@ -1,21 +1,17 @@
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { AxiosResponse } from 'axios';
+import { BreedDetail, CatDetail } from '../models/cat';
+import { getCat } from '../service/cat.service';
+import { Button, Container } from '@mui/material';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
-import { getCat } from '../service/cat.service';
-import {useParams} from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { AxiosResponse } from 'axios';
-import { CatDetail, BreedDetail } from '../models/cat';
-import React from 'react';
-import { Button, Container } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import { useNavigate } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
 
 import './cat.component.css';
 
@@ -26,15 +22,19 @@ export default function CatComponent() {
 
   const params = useParams();
   const [catDetails, setCatDetails] = useState({} as CatDetail);
+  const [error, setError] = useState("");
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     async function fetchDetails() {
-      const detailID = (params.id ? params.id : '').replace(":", "");
+      const detailID = (params.id ? params.id : '').replace(":" , "");
       
       getCat(detailID).then((response: AxiosResponse<any>) => {
+        setHasError(false);
         setCatDetails(response.data);
       }).catch((e: Error) => {
-        console.log(e);
+        setHasError(true);
+        setError(e.message);
       });
     }
 
@@ -87,12 +87,13 @@ export default function CatComponent() {
             <Button size="small" onClick={goBack}>Go Back</Button>
           </CardActions>
         </Card>
-        : <div></div>
+        : null
     );
   }
   
   return (
     <Container>
+      {hasError ? <Alert sx={{ margin: "10px 0px" }} severity="error">{error}</Alert> : null}
       {renderDetails()}
     </Container>
   );

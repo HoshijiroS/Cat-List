@@ -1,16 +1,14 @@
+import React from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import { AxiosResponse } from "axios";
-import { Component, ChangeEvent, ChangeEventHandler, MouseEventHandler, useState, useEffect } from "react";
 import { getCatByBreed, getBreeds } from "../service/cat.service";
 import FormControl from '@mui/material/FormControl';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Button, Container, IconButton, ImageListItemBar, InputLabel, NativeSelect } from "@mui/material";
-import Box from '@mui/material/Box';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import OpenInFullRoundedIcon from '@mui/icons-material/OpenInFullRounded';
 import CircularProgress from '@mui/material/CircularProgress';
-import React from "react";
+import Alert from '@mui/material/Alert';
 import { Breed, Cat } from '../models/cat';
 
 export default function CatListComponent() {
@@ -21,15 +19,18 @@ export default function CatListComponent() {
   const [selBreed, setSelectedBreed] = useState('');
   const [canLoadMore, setCanLoadMore] = useState(true);
   const [currPage, setCurrPage] = useState(0);
+  const [error, setError] = useState("");
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     async function fetchBreeds() {
       getBreeds().then((response: AxiosResponse<any>) => {
+        setHasError(false);
         setBreed(response.data);
-
         setSelectedBreed(response.data[0].id);
       }).catch((e: Error) => {
-        console.log(e);
+        setHasError(true);
+        setError(e.message);
       });
     }
 
@@ -51,11 +52,8 @@ export default function CatListComponent() {
 
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setCats([]);
-    
     setSelectedBreed(e.target.value);
-
-    setCurrPage(0)
-
+    setCurrPage(0);
     loadCats();
   }
 
@@ -63,10 +61,12 @@ export default function CatListComponent() {
     setCanLoadMore(false);
 
     getCatByBreed(currPage, itemsToLoad, selBreed).then((response: AxiosResponse<any>) => {
+      setHasError(false);
+
       setCurrPage(currPage + 1);
 
       const pageLimit = parseInt(response.headers["pagination-count"]);
-      const newCats = response.data.filter((cat: Cat) => cats.map(i => i.id).indexOf(cat.id) < 0); // needed because of how API was written.
+      const newCats = response.data.filter((cat: Cat) => cats.map(i => i.id).indexOf(cat.id) < 0); 
 
       setCats(
         [
@@ -79,7 +79,8 @@ export default function CatListComponent() {
       }
 
     }).catch((e: Error) => {
-      console.log(e);
+      setHasError(true);
+      setError(e.message);
     });
   }
 
@@ -163,6 +164,7 @@ export default function CatListComponent() {
 
   return (<React.Fragment>
     <Container maxWidth="lg">
+      {hasError ? <Alert sx={{ margin: "10px 0px" }} severity="error">{error}</Alert> : null}
       {breeds.length > 0 ? renderSearch() : renderLoading()}
       {cats.length > 0 ? renderCatList() : renderLoading()}
     </Container>
