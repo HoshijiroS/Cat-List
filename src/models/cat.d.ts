@@ -22,7 +22,7 @@ export interface BreedDetail {
     hairless: number;
 }
   
-  export interface CatDetail {
+export interface CatDetail {
     id: string;
     url: string;
     breeds: BreedDetail[];

@@ -13,6 +13,6 @@ export async function handleResponse(endpoint: string, queryParams: any) {
     ).then((response: AxiosResponse<any>) => {
         return response;
     }).catch((error) => {
-        throw new Error (`Error ${error}`);
+        throw new Error (error);
     });
 }
