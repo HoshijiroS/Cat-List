@@ -1,86 +1,166 @@
 import { AxiosResponse } from "axios";
-import { Component, ChangeEvent } from "react";
-import { getBreeds } from "../service/cat.service";
+import { Component, ChangeEvent, ChangeEventHandler, MouseEventHandler, useState, useEffect } from "react";
+import { getCatByBreed, getBreeds } from "../service/cat.service";
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import NativeSelect from "@mui/material/NativeSelect";
-import { InputLabel } from "@mui/material";
+import { Button, Container, IconButton, ImageListItemBar, InputLabel, NativeSelect } from "@mui/material";
+import Box from '@mui/material/Box';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import OpenInFullRoundedIcon from '@mui/icons-material/OpenInFullRounded';
+import CircularProgress from '@mui/material/CircularProgress';
+import React from "react";
+import { Breed, Cat } from '../models/cat';
 
-type Props = {};
-type State = {
-  breeds: Breed[]
-};
+export default function CatListComponent() {
+  const itemsToLoad = 10;
 
-export class CatListComponent extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    
-    this.loadData = this.loadData.bind(this);
-    
-    this.state = {
-      breeds: [],
-    };
+  const [breeds, setBreed] = useState([] as Breed[]);
+  const [cats, setCats] = useState([] as Cat[]);
+  const [selBreed, setSelectedBreed] = useState('');
+  const [canLoadMore, setCanLoadMore] = useState(true);
+  const [currPage, setCurrPage] = useState(0);
+
+  useEffect(() => {
+    async function fetchBreeds() {
+      getBreeds().then((response: AxiosResponse<any>) => {
+        setBreed(response.data);
+      }).catch((e: Error) => {
+        console.log(e);
+      });
+    }
+
+    fetchBreeds();
+  }, []);
+
+  useEffect(() => {
+    if (selBreed) loadCats();
+  }, [selBreed]);
+
+  const renderOption = (opt: Breed) => {
+    return (
+    <option 
+      key = {opt.id} 
+      value={opt.id}>
+        {opt.name}
+    </option>);
   }
 
-  componentDidMount() {
-    this.loadData();
+  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setCats([]);
+    
+    setSelectedBreed(e.target.value);
+
+    setCurrPage(0)
+
+    loadCats();
   }
 
-  loadData() {
-    getBreeds().then((response: AxiosResponse<any>) => {
-      this.setState({
-        breeds: response.data
-      })
+  const loadCats = () => {
+    setCanLoadMore(false);
+
+    getCatByBreed(currPage, itemsToLoad, selBreed).then((response: AxiosResponse<any>) => {
+      setCurrPage(currPage + 1);
+
+      const pageLimit = parseInt(response.headers["pagination-count"]);
+      const newCats = response.data.filter((cat: Cat) => cats.map(i => i.id).indexOf(cat.id) < 0); // needed because of how API was written.
+
+      setCats(
+        [
+          ...cats,
+          ...newCats
+        ]);
+
+      if(newCats.length > 0 && pageLimit > itemsToLoad) {
+        setCanLoadMore(true);
+      }
+
     }).catch((e: Error) => {
       console.log(e);
     });
   }
 
-  renderOption(opt: Breed) {
-    return (<MenuItem value={opt.id}>{opt.name}</MenuItem>);
-  }
-
-  handleChange(e: SelectChangeEvent<string>) {
-  }
-
-  renderSearch() {
-    const { breeds } = this.state
-    
+  const renderCatList = () => {
     return (
-      <FormControl fullWidth>
-        <InputLabel id="select-input">Breed</InputLabel>
-        <Select
-          labelId="select-input"
-          defaultValue={breeds[0].id}
-          inputProps={{
-            name: 'breed',
-            id: 'breed-select',
-          }}
-        >
-          {breeds.map(breed => this.renderOption(breed))}
-        </Select>
-      </FormControl>
+      <Container maxWidth="lg" sx = {{margin: 0}}>
+        <ImageList cols={3}>
+          {cats.map((cat: Cat) => (
+            <ImageListItem key={cat.url}>
+              <img
+                src={`${cat.url}?w=248&h=164&fit=crop&auto=format`}
+                srcSet={`${cat.url}?w=248&h=164&fit=crop&auto=format&dpr=2 2x`}
+                alt={cat.url}
+                loading="lazy"
+              />
+
+              <ImageListItemBar
+                sx={{
+                  background:
+                    'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, ' +
+                    'rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+                }}
+                position="top"
+                actionIcon={
+                  <IconButton
+                    sx={{ color: 'white' }}
+                    aria-label={`view`}
+                    href={`/cat:${cat.id}`}
+                  >
+                    <OpenInFullRoundedIcon />
+                  </IconButton>
+                }
+                actionPosition="right"
+              />
+
+            </ImageListItem>
+          ))}
+        </ImageList>
+
+        {(canLoadMore ? 
+          <Button 
+            variant="outlined"
+            onClick={loadCats} 
+          >
+            Load More
+          </Button> 
+          : ''
+          )}
+      </Container>
     );
   }
 
-  renderLoading() {
+  const renderSearch = () => {
     return (
-      <div>Loading...</div>
+      <Container sx = {{margin: "30px 0px"}}>
+          <FormControl fullWidth><InputLabel variant="standard" htmlFor="select-input">
+            Select a cat breed below!
+          </InputLabel>
+            <NativeSelect
+              defaultValue={breeds[0].id}
+              inputProps={{
+                name: 'breed',
+                id: 'select-input',
+              }}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e)}
+            >
+              {breeds.map(breed => renderOption(breed))}
+            </NativeSelect>
+          </FormControl>
+      </Container>
     );
   }
 
-  render() {
-
-    const { breeds } = this.state;
-    
+  const renderLoading = () => {
     return (
-      <div>{breeds.length > 0 ? this.renderSearch() : this.renderLoading()}</div>
+      <CircularProgress disableShrink />
     );
   }
-}
 
-interface Breed {
-  id: string;
-  name: string;
+  return (<React.Fragment>
+    <Container maxWidth="lg">
+      {breeds.length > 0 ? renderSearch() : renderLoading()}
+      {cats.length > 0 ? renderCatList() : renderLoading()}
+    </Container>
+  </React.Fragment>);
 }

@@ -1,11 +1,18 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { CatListComponent } from './components/cat-list.component';
+import CatListComponent from './components/cat-list.component';
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
 
 function App() {
   return (
-    <CatListComponent></CatListComponent>
+    <React.Fragment>
+      <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<CatListComponent />} />
+      </Routes>
+    </BrowserRouter>
+    </React.Fragment>
   );
 }
 
