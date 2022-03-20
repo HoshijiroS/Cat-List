@@ -1,4 +1,3 @@
-import axios, { AxiosResponse } from "axios";
 import { config } from "../models/config";
 import { handleResponse } from './api.service';
 

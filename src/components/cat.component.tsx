@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AxiosResponse } from 'axios';
-import { BreedDetail, CatDetail } from '../models/cat';
+import { CatDetail } from '../models/cat';
 import { getCat } from '../service/cat.service';
 import { Button, Container } from '@mui/material';
 import Card from '@mui/material/Card';
